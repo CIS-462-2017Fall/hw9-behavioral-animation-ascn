@@ -157,22 +157,25 @@ void BehaviorController::control(double deltaT)
 
 		//  force and torque inputs are computed from vd and thetad as follows:
 		//              Velocity P controller : force = mass * Kv * (vd - v)
-		//              Heading PD controller : torque = Inertia * (-Kv * thetaDot -Kp * (thetad - theta))
+		//              Heading PD controller : torque = Inertia * (-Kv * thetaDot + Kp * (thetad - theta))
 		//  where the values of the gains Kv and Kp are different for each controller
 
 		// TODO: insert your code here to compute m_force and m_torque
 
+		m_vd = m_Vdesired.Length();
+		m_thetad = tan(m_Vdesired[2] / m_Vdesired[0]);
 
+		m_force = gMass * gVelKv * (m_vd - m_state[VEL][_Z]);
+		m_torque = gInertia * (-gOriKv * m_stateDot[1][1] + gOriKp * (m_thetad - m_state[1][1]));
 
-
-
-
-
-
-
-
-
-
+		if (m_force.Length() > gMaxForce) {
+			m_force.Normalize();
+			m_force *= gMaxForce;
+		}
+		if (m_torque.Length() > gMaxTorque) {
+			m_torque.Normalize();
+			m_torque *= gMaxTorque;
+		}
 
 		// when agent desired agent velocity and actual velocity < 2.0 then stop moving
 		if (m_vd < 2.0 &&  m_state[VEL][_Z] < 2.0)
@@ -212,9 +215,10 @@ void BehaviorController::computeDynamics(vector<vec3>& state, vector<vec3>& cont
 	// Compute the stateDot vector given the values of the current state vector and control input vector
 	// TODO: add your code here
 
-
-
-
+	stateDot[0] = state[2];
+	stateDot[1] = state[3];
+	stateDot[2] = force / gMass;
+	stateDot[3] = torque / gInertia;
 
 }
 
@@ -225,12 +229,10 @@ void BehaviorController::updateState(float deltaT, int integratorType)
 
 	// TODO: add your code here
 	
-
-
-
-
-
-
+	m_state[0] = m_stateDot[0] * deltaT;
+	m_state[1] = m_stateDot[1] * deltaT;
+	m_state[2] = m_stateDot[2] * deltaT;
+	m_state[3] = m_stateDot[3] * deltaT;
 
 	//  given the new values in m_state, these are the new component state values 
 	m_Pos0 = m_state[POS];
@@ -241,11 +243,16 @@ void BehaviorController::updateState(float deltaT, int integratorType)
 	//  Perform validation check to make sure all values are within MAX values
 	// TODO: add your code here
 
-
-
-
-
-
+	if (m_VelB.Length() > gMaxSpeed) {
+		m_VelB.Normalize();
+		m_VelB *= gMaxSpeed;
+		m_state[VEL] = m_VelB;
+	}
+	if (m_AVelB.Length() > gMaxAngularSpeed) {
+		m_AVelB.Normalize();
+		m_AVelB *= gMaxAngularSpeed;
+		m_state[AVEL] = m_AVelB;
+	}
 
 
 	// update the guide orientation

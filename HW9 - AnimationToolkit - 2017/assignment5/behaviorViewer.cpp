@@ -80,6 +80,8 @@ void BehaviorViewer::initializeGui()
 	TwAddVarRW(m_TwBehaviorBar, "Max angular", TW_TYPE_DOUBLE, &BehaviorController::gMaxAngularSpeed, "");
 	TwAddVarRW(m_TwBehaviorBar, "Neighborhod", TW_TYPE_DOUBLE, &BehaviorController::gKNeighborhood, "");
 	TwAddVarRW(m_TwBehaviorBar, "Radius", TW_TYPE_DOUBLE, &BehaviorController::gAgentRadius, "");
+	TwAddVarRW(m_TwBehaviorBar, "Arrival strength", TW_TYPE_DOUBLE, &BehaviorController::KArrival, "");
+	TwAddVarRW(m_TwBehaviorBar, "Departure strength", TW_TYPE_DOUBLE, &BehaviorController::KDeparture, "");
 	TwAddVarRW(m_TwBehaviorBar, "Debug", TW_TYPE_BOOLCPP, &m_DebugDraw, "");
 	TwAddButton(m_TwBehaviorBar, "Reset", onResetCb, this, "");
 
